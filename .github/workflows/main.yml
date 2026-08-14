@@ -1,45 +1,42 @@
 name: Node.js CI
-
+ 
 on:
   push:
-    branches:
-      - main
-
+ 
 jobs:
-  build-and-test:
-    name: Build and Test Node.js Web App
+  build-test:
+    name: Build and Test Node.js App
     runs-on: ubuntu-latest
-
+ 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v7
+ 
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
         with:
           node-version: '20.x'
-
+ 
       - name: Install dependencies
         run: npm install
-
-      - name: Test application
+ 
+      - name: Run tests
         run: npm test
-
-  docker:
+ 
+  build-publish:
     name: Build and Publish Application Container
-    needs: build-and-test
     runs-on: ubuntu-latest
-
+    needs: build-test
+ 
     steps:
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+ 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
-          context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cpsy-350-ci:latest
+          tags: rajvekariya123456789/cpsy350-ci:latest
